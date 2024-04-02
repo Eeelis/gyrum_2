@@ -7,12 +7,12 @@ Gyrum is an experimental, gamified sequencer, inspired by Marble Machine built b
 
 <br>
 
-<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/RadialMenu.png" width="600">
+<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/RadialMenu.png" width="400">
 
 <br>
 
-<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/ContextMenu.png" width="600">
+<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/ContextMenu.png" width="400">
 
 <br>
 
-<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/Parts.png" width="600">
+<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/Parts.png" width="400">
