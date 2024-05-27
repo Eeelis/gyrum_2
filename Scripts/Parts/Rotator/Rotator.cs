@@ -8,14 +8,57 @@ public class Rotator : Part
 
     private float targetRotation;
     private int rotationDirection = 1;
-    private bool isRotating = true;
     private bool rotateContinuously = false;
     private float rotationSpeed = 2f;
 
+    public override void ReceiveTrigger(int? value)
+    {
+        if (value.HasValue)
+        {
+            if (contextMenu.valueMode == 0)
+            {
+                int newSpeed = Mathf.Clamp(value.GetValueOrDefault(), 0, 10);
+                rotationSpeed = newSpeed * 30;
+                contextMenu.UpdateContextMenu("RotationSpeed", newSpeed);
+            }
+            else if (contextMenu.valueMode == 1)
+            {
+                int newRotation = Mathf.Clamp(value.GetValueOrDefault(), 0, 360);
+                targetRotation = newRotation;
+                contextMenu.UpdateContextMenu("TargetRotation", newRotation);
+            }
+        }
+        else 
+        {
+            if (contextMenu.triggerMode == 0)
+            {
+                SetActive();
+            }
+            else if (contextMenu.triggerMode == 1)
+            {
+                rotationDirection *= -1;
+                contextMenu.UpdateContextMenu("Direction", rotationDirection);
+            }
+            else if (contextMenu.triggerMode == 2)
+            {
+                rotateContinuously = !rotateContinuously;
+                contextMenu.UpdateContextMenu("ContinousRotation", rotateContinuously);
+            }
+            
+        }
+    }
+
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        targetRotation = (int)parameters["TargetRotation"];
+        rotateContinuously = (bool)parameters["ContinousRotation"];
+        rotationSpeed = (int)parameters["RotationSpeed"] * 30;
+        rotationDirection = (int)parameters["Direction"];
+    }
+
     private void FixedUpdate()
     {
-        if (!isRotating) { return; }
-        if (!cachedRigidbody) { return; }
+        if (!isActive || !cachedRigidbody) { return; }
         
         if (rotateContinuously)
         {
@@ -38,35 +81,21 @@ public class Rotator : Part
         part.DisableRigidbody();
     }
 
-    public override void Erase()
+    public void DisconnectPart()
     {
         transform.DetachChildren();
+
+        connectedPart.connectedRotator = null;
+        connectedPart?.Erase();
+        connectedPart = null;
+    }   
+
+    public override void Erase()
+    {
         
-        if (connectedPart)
-        {
-            connectedPart.connectedRotator = null;
-            connectedPart.Erase();
-            connectedPart = null;
-        }
+        DisconnectPart();
 
         base.Erase();
     }
 
-    public override void ReceiveTrigger(int? value)
-    {
-        if (value.HasValue)
-        {
-            int newRotation = Mathf.Clamp(value.GetValueOrDefault(), 0, 360);
-            targetRotation = newRotation;
-            contextMenu.UpdateContextMenu("TargetRotation", newRotation);
-        }
-    }
-
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
-    {
-        targetRotation = contextMenuData.GetParameter<int>("TargetRotation");
-        rotateContinuously = contextMenuData.GetParameter<bool>("ContinousRotation");
-        rotationSpeed = contextMenuData.GetParameter<int>("RotationSpeed") * 30f;
-        rotationDirection = contextMenuData.GetParameter<int>("Direction");
-    }
 }

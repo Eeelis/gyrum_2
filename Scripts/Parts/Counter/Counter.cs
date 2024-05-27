@@ -4,14 +4,8 @@ using UnityEngine;
 
 public class Counter : Part
 {
-    private int count = 0;
+    private int count;
     private int threshold;
-
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
-    {
-        threshold = contextMenuData.GetParameter<int>("Threshold");
-        count = contextMenuData.GetParameter<int>("Count");
-    }
 
     public override void ReceiveTrigger(int? value)
     {
@@ -21,7 +15,7 @@ public class Counter : Part
             threshold = newThreshold;
             contextMenu.UpdateContextMenu("Threshold", newThreshold);
         }
-        else 
+        else if (isActive)
         {
             count++;
 
@@ -33,5 +27,11 @@ public class Counter : Part
 
             contextMenu.UpdateContextMenu("Count", count);
         }
+    }
+
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        threshold = (int)parameters["Threshold"];
+        count = (int)parameters["Count"];
     }
 }

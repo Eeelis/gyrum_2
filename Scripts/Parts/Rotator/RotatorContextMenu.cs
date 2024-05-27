@@ -19,38 +19,28 @@ public class RotatorContextMenu : ContextMenu
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("ContinousRotation", true);
-        currentContextMenuData.AddParameter("RotationSpeed", 3);
-        currentContextMenuData.AddParameter("Direction", -1);
-        currentContextMenuData.AddParameter("TargetRotation", 0);
+        parameters["ContinousRotation"] = true;
+        parameters["RotationSpeed"] = 3;
+        parameters["Direction"] = -1;
+        parameters["TargetRotation"] = 0;
 
-        continousRotationToggle.isOn = !currentContextMenuData.GetParameter<bool>("ContinousRotation");
-        targetRotationInputField.text = currentContextMenuData.GetParameter<int>("TargetRotation").ToString();
-        selectionBox.transform.position = directionRight.transform.position;
-        rotationSpeedSlider.value = currentContextMenuData.GetParameter<int>("RotationSpeed");
-
-        UpdateRotationSpeedText();
-
-        this.associatedPart =  associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
+        continousRotationToggle.isOn = !(bool)parameters["ContinousRotation"];
+        targetRotationInputField.text = parameters["TargetRotation"].ToString();
+        rotationSpeedSlider.value = (int)parameters["RotationSpeed"];
+        rotationSpeedText.text = parameters["RotationSpeed"].ToString();
 
-        if (parameterName == "RotationSpeed")
+        if ((int)parameters["Direction"] == 1)
         {
-            rotationSpeedSlider.value = currentContextMenuData.GetParameter<int>("RotationSpeed");
-            UpdateRotationSpeedText();
+            selectionBox.transform.position = directionLeft.transform.position;
         }
-        if (parameterName == "TargetRotation")
+        else 
         {
-            targetRotationInputField.text = currentContextMenuData.GetParameter<int>("TargetRotation").ToString();
-        }
-        if (parameterName == "ContinuousRotation")
-        {
-            continousRotationToggle.isOn = !currentContextMenuData.GetParameter<bool>("ContinousRotation");
+            selectionBox.transform.position = directionRight.transform.position;
         }
     }
 
@@ -61,45 +51,41 @@ public class RotatorContextMenu : ContextMenu
 
     public void SetRotationSpeed()
     {
-        int speed = (int)rotationSpeedSlider.value;
-        currentContextMenuData.AddParameter("RotationSpeed", speed);
-
-        UpdateRotationSpeedText();
-        SendContextMenuDataToAssociatedPart();
+        parameters["RotationSpeed"] = (int)rotationSpeedSlider.value;
+        UpdateUI();
+        UpdateAssociatedPart();
     }
 
     public void SetTargetRotation(string arg)
     {
-        int targetRotation = Int32.Parse(arg);
-        currentContextMenuData.AddParameter("TargetRotation", targetRotation);
-        SendContextMenuDataToAssociatedPart();
+        parameters["TargetRotation"] = Int32.Parse(arg);
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionLeft()
     {
         selectionBox.transform.position = directionLeft.transform.position;
-        currentContextMenuData.AddParameter("Direction", 1);
-        SendContextMenuDataToAssociatedPart();
+        parameters["Direction"] = 1;
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionRight()
     {
         selectionBox.transform.position = directionRight.transform.position;
-        currentContextMenuData.AddParameter("Direction", -1);
-        SendContextMenuDataToAssociatedPart();
+        parameters["Direction"] = -1;
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionShortest()
     {
         selectionBox.transform.position = directionShortest.transform.position;
-        currentContextMenuData.AddParameter("Direction", 2);
-        SendContextMenuDataToAssociatedPart();
+        parameters["Direction"] = 2;
+        UpdateAssociatedPart();
     }   
 
     public void SetContinousRotation()
     {
-        bool continuousDirection = !continousRotationToggle.isOn;
-        currentContextMenuData.AddParameter("ContinousRotation", continuousDirection);
-        SendContextMenuDataToAssociatedPart();
+        parameters["ContinousRotation"] = !continousRotationToggle.isOn;
+        UpdateAssociatedPart();
     }
 }

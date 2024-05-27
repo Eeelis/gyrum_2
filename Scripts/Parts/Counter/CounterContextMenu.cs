@@ -12,46 +12,29 @@ public class CounterContextMenu : ContextMenu
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("Threshold", initialThreshold);
-        currentContextMenuData.AddParameter("Count", 0);
-        UpdateThresholdInputField();
-        UpdateCountInputField();
+        parameters["Threshold"] = 2;
+        parameters["Count"] = 0;
 
-        this.associatedPart = associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        UpdateThresholdInputField();
-        UpdateCountInputField();
+        countInputField.text = parameters["Count"].ToString();
+        thresholdInputField.text = parameters["Threshold"].ToString();
     }
 
     public void SetThreshold(string arg)
     {
-        int threshold = Int32.Parse(arg);
-        currentContextMenuData.AddParameter("Threshold", threshold);
-
-        SendContextMenuDataToAssociatedPart();
+        parameters["Threshold"] = Int32.Parse(arg);
+        UpdateAssociatedPart();
     }
 
     public void SetCount(string arg)
     {
-        int count = Int32.Parse(arg);
-        currentContextMenuData.AddParameter("Count", count);
-
-        SendContextMenuDataToAssociatedPart();
+        parameters["Count"] = Int32.Parse(arg);
+        UpdateAssociatedPart();
     }
 
-    private void UpdateThresholdInputField()
-    {
-        thresholdInputField.text = currentContextMenuData.GetParameter<int>("Threshold").ToString();
-    }
 
-    private void UpdateCountInputField()
-    {
-        countInputField.text = currentContextMenuData.GetParameter<int>("Count").ToString();
-    }
 }

@@ -11,34 +11,23 @@ public class SpeedometerContextMenu : ContextMenu
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("Range", 2);
-        rangeSlider.value = 2;
-        UpdateRangeText();
-
-        this.associatedPart = associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        parameters["Range"] = 5;
+        
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        rangeSlider.value = currentContextMenuData.GetParameter<int>("Range");
-        UpdateRangeText();
-    }
-
-    public void UpdateRangeText()
-    {
+        rangeSlider.value = (int)parameters["Range"];
         rangeText.text = rangeSlider.value.ToString();
     }
 
+
     public void SetRange()
     {
-        int range = (int)rangeSlider.value;
-        rangeText.text = range.ToString();
-        currentContextMenuData.AddParameter("Range", range);
-
-        SendContextMenuDataToAssociatedPart();
+        parameters["Range"] = (int)rangeSlider.value;
+        UpdateUI();
+        UpdateAssociatedPart();
     }
 
 }

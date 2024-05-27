@@ -7,35 +7,23 @@ using UnityEngine.EventSystems;
 
 public class ClockContextMenu : ContextMenu
 {
-    [SerializeField] private int initialRate;
     [SerializeField] private TMP_InputField rateInputField;
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("Rate", initialRate);
-        UpdateRateInputField();
+        parameters["Rate"] = 0;
 
-        this.associatedPart = associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
-
-    public override void UpdateContextMenu(string parameterName, object value)
+    
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        UpdateRateInputField();
+        rateInputField.text = parameters["Rate"].ToString();
     }
 
     public void SetRate(string arg)
     {
-        int rate = Int32.Parse(arg);
-        currentContextMenuData.AddParameter("Rate", rate);
-
-        SendContextMenuDataToAssociatedPart();
-    }
-
-    private void UpdateRateInputField()
-    {
-        rateInputField.text = currentContextMenuData.GetParameter<int>("Rate").ToString();
+        parameters["Rate"] = Int32.Parse(arg);
+        UpdateAssociatedPart();
     }
 }

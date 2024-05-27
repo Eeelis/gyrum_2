@@ -5,56 +5,79 @@ using UnityEngine;
 public class Clock : Part
 {
     private int rate;
-    private bool ticking;
 
     public override void ReceiveTrigger(int? value)
     {
         if (value.HasValue)
         {
-            value = Mathf.Clamp(value.GetValueOrDefault(), 0, 999);
-            this.rate = value.GetValueOrDefault();
-            contextMenu.UpdateContextMenu("Rate", value.GetValueOrDefault());
+            rate = Mathf.Clamp(value.GetValueOrDefault(), 0, 999);
+            contextMenu.UpdateContextMenu("Rate", rate);
 
-            if (rate > 0 && ticking)
+            if (rate > 0 && isActive)
             {
                 CancelInvoke("Tick");
                 InvokeRepeating("Tick", 60f / rate, 60f / rate);
             }
-
-            return;
         }
-
-        if (ticking)
+        else 
         {
-            CancelInvoke("Tick");
-            ticking = false;
-        }
-        else
-        {
-            ticking = true;
-
-            if (rate > 0)
-            {
-                InvokeRepeating("Tick", 60f / rate, 60f / rate);
-            }
+            SetActive();
         }
     }
 
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
+    public override void UpdateParameters(Dictionary<string, object> parameters)
     {
-        rate = contextMenuData.GetParameter<int>("Rate");
-        
+        rate = (int)parameters["Rate"];
+
         CancelInvoke("Tick");
 
         if (rate > 0)
         {
-            ticking = true;
             InvokeRepeating("Tick", 60f / rate, 60f / rate);
         }
+    }
+
+    public override void SetActive()
+    {
+        if (isActive)
+        {
+            CancelInvoke("Tick"); 
+        }
+        else if (rate > 0)
+        {
+            InvokeRepeating("Tick", 60f / rate, 60f / rate);
+        }
+
+        base.SetActive();
     }
 
     private void Tick()
     {
         SendTrigger();
+    }
+
+    public override object GetState()
+    {
+        return new State()
+        {
+            rate = this.rate,
+            isActive = this.isActive
+        };
+    }
+
+    public override void LoadState(object s)
+    {
+        var state = (State)s;
+        rate = state.rate;
+        isActive = state.isActive;
+        
+        contextMenu?.UpdateContextMenu("Rate", rate);
+    }
+
+    [System.Serializable]
+    private struct State
+    {
+        public int rate;
+        public bool isActive;
     }
 }

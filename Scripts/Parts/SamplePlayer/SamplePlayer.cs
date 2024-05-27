@@ -5,15 +5,44 @@ using UnityEngine.Networking;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
+using System.IO;
 
 public class SamplePlayer : Part
 {
-    private AudioClip audioClip;
     [SerializeField] AudioSource audioPlayer;
+    [SerializeField] ParticleSystem playAudioPS;
+    
+    private string pathToSample = "";
+    private AudioClip audioClip;
+    private float volume;
 
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
+    public override void ReceiveTrigger(int? value)
     {
-        GetSample(contextMenuData.GetParameter<string>("PathToSample"));
+        if (value.HasValue)
+        {
+            float newVolume = Mathf.Clamp(value.GetValueOrDefault(), 0, 100);
+            audioPlayer.volume = newVolume / 100;
+            contextMenu.UpdateContextMenu("Volume", newVolume);
+        }
+        else 
+        {
+            SetActive();
+        }
+    }
+
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        audioPlayer.volume = (float)parameters["Volume"] / 100;
+
+        if (parameters["PathToSample"].ToString() != pathToSample)
+        {
+            pathToSample = parameters["PathToSample"].ToString();
+            GetSample(pathToSample);
+        }
+        else if (parameters["PathToSample"].ToString() == "")
+        {
+            audioPlayer.clip = null;
+        }
     }
 
     public async void GetSample(string path)
@@ -40,6 +69,7 @@ public class SamplePlayer : Part
                 }
                 else
                 {
+                    contextMenu.UpdateContextMenu("SampleName", Path.GetFileName(path));
                     clip = DownloadHandlerAudioClip.GetContent(uwr);
                 }
             }
@@ -53,11 +83,14 @@ public class SamplePlayer : Part
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.TryGetComponent(out Marble marble))
+        if (isActive && other.TryGetComponent(out Marble marble) && audioPlayer.clip)
         {
             LeanTween.cancel(gameObject);
             transform.localScale = Vector2.one;
             LeanTween.scale(gameObject, new Vector2(1.2f, 1.2f), 0.4f).setEasePunch();
+
+            playAudioPS.Stop();
+            playAudioPS.Play();
             
             audioPlayer.Play();
         }

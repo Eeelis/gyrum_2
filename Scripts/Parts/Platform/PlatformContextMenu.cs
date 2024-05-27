@@ -11,33 +11,20 @@ public class PlatformContextMenu : ContextMenu
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("Bounciness", 0);
-        bouncinessSlider.value = 0;
-        UpdateBouncinessText();
-
-        this.associatedPart = associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        parameters["Bounciness"] = 0;
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        bouncinessSlider.value = currentContextMenuData.GetParameter<int>(parameterName);
-        UpdateBouncinessText();
-    }
-
-    public void UpdateBouncinessText()
-    {
-        bouncinessText.text = bouncinessSlider.value.ToString();
+        bouncinessSlider.value = (int)parameters["Bounciness"];
+        bouncinessText.text = parameters["Bounciness"].ToString();
     }
 
     public void SetBounciness()
     {
-        int bounciness = (int)bouncinessSlider.value;
-        bouncinessText.text = bounciness.ToString();
-        currentContextMenuData.AddParameter("Bounciness", bounciness);
-
-        SendContextMenuDataToAssociatedPart();
+        parameters["Bounciness"] = (int)bouncinessSlider.value;
+        UpdateAssociatedPart();
+        UpdateUI();
     }
 }

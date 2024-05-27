@@ -2,24 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class SamplePlayerContextMenu : ContextMenu
 {
-    private string pathToSample;
     [SerializeField] private TMP_Text pathText;
+    [SerializeField] private Slider volumeSlider;
+    [SerializeField] private TMP_Text volumeText;
+
+    private string pathToSample;
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("PathToSample", pathToSample);
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.down);
+        parameters["PathToSample"] = "";
+        parameters["Volume"] = 75f;
+        parameters["SampleName"] = "Choose Sample";
 
-        this.associatedPart =  associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-
+        volumeSlider.value = (float)parameters["Volume"];
+        volumeText.text = volumeSlider.value.ToString();
+        pathText.text = parameters["SampleName"].ToString();
     }
 
     public void ChooseSample()
@@ -28,12 +34,18 @@ public class SamplePlayerContextMenu : ContextMenu
         SimpleFileBrowser.FileBrowser.ShowLoadDialog(OnSuccess, OnCancel, 0, false, null, null, "Select Sample", "Select" );
     }
 
+    public void SetVolume()
+    {
+        parameters["Volume"] = volumeSlider.value;
+        UpdateUI();
+        UpdateAssociatedPart();
+    }
+
     public void OnSuccess(string[] paths)
     {
-        pathToSample = paths[0];
-        currentContextMenuData.AddParameter("PathToSample", pathToSample);
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
-        pathText.text = pathToSample;
+        parameters["PathToSample"] = paths[0];
+        UpdateUI();
+        UpdateAssociatedPart();
     }
 
     public void OnCancel()

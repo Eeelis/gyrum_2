@@ -11,9 +11,35 @@ public class Platform : Part
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color permeableColor;
 
-    private List<Vector2> gridAlignedPoints = new List<Vector2>();
-
     private int bounciness;
+
+    public override void ReceiveTrigger(int? value)
+    {
+        if (value.HasValue)
+        { 
+            bounciness = Mathf.Clamp(value.GetValueOrDefault(), 0, 5);
+            contextMenu.UpdateContextMenu("Bounciness", bounciness);
+
+            edgeCollider.enabled = false;
+            edgeCollider.sharedMaterial.bounciness = bounciness / 5f;
+            edgeCollider.enabled = true;
+
+            return;
+        }
+        else
+        {
+            SetActive();
+        }
+    }
+    
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        bounciness = (int)parameters["Bounciness"];
+        
+        edgeCollider.enabled = false;
+        edgeCollider.sharedMaterial.bounciness = bounciness / 5f;
+        edgeCollider.enabled = true;
+    }
 
     public void SetPositions(LineRenderer lr)
     {
@@ -25,6 +51,10 @@ public class Platform : Part
         
         fill.positionCount = lr.positionCount;
         fill.SetPositions(positions);
+
+               
+        selectionIndicator.GetComponent<LineRenderer>().positionCount = lr.positionCount;
+        selectionIndicator.GetComponent<LineRenderer>().SetPositions(positions);
     }
 
     public void InitializeCollider()
@@ -40,47 +70,51 @@ public class Platform : Part
         edgeCollider.SetPoints(edges);
     }
 
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
+    public override void SetActive()
     {
-        bounciness = contextMenuData.GetParameter<int>("Bounciness");
-        edgeCollider.enabled = false;
-        edgeCollider.sharedMaterial.bounciness = bounciness / 5f;
-        edgeCollider.enabled = true;
-    }
-
-    public override void ReceiveTrigger(int? value)
-    {
-        if (value.HasValue)
-        { 
-            bounciness = Mathf.Clamp(value.GetValueOrDefault(), 0, 5);
-            contextMenu.UpdateContextMenu("Bounciness", bounciness);
-
-            edgeCollider.enabled = false;
-            edgeCollider.sharedMaterial.bounciness = bounciness / 5f;
-            edgeCollider.enabled = true;
-
-            return;
-        }
-
-
-        if (gameObject.layer == LayerMask.NameToLayer("Permeable"))
-        {
-            gameObject.layer = LayerMask.NameToLayer("Platform");
-            lineRenderer.startColor = lineRenderer.endColor = defaultColor;
-        }
-        else  
+        if (isActive)
         {
             gameObject.layer = LayerMask.NameToLayer("Permeable");
             lineRenderer.startColor = lineRenderer.endColor = permeableColor;
         }
+        else  
+        {
+            gameObject.layer = LayerMask.NameToLayer("Platform");
+            lineRenderer.startColor = lineRenderer.endColor = defaultColor;
+        }
+
+        base.SetActive();
     }
 
     public override void Erase()
     {
-        gameObject.layer = LayerMask.NameToLayer("Platform");
-        lineRenderer.startColor = lineRenderer.endColor = defaultColor;
-        base.Erase();
-    }
+        cachedCollider.enabled = false;
 
-    
+        Vector2 targetPos = Vector2.zero;
+
+        if (connectedRotator)
+        {
+            targetPos = connectedRotator.transform.position;
+        }
+        else 
+        {
+            targetPos = Utilities.GetLineRendererMiddlePoint(lineRenderer);
+        }
+
+        LeanTween.value(gameObject, (Vector2)lineRenderer.GetPosition(1), targetPos, 0.075f).setOnUpdate( (Vector2 value) =>
+        {
+            fill.SetPosition(1, value);
+            lineRenderer.SetPosition(1, value);
+        });
+        LeanTween.value(gameObject, (Vector2)lineRenderer.GetPosition(0), targetPos, 0.075f).setOnUpdate( (Vector2 value) =>
+        {
+            fill.SetPosition(0, value);
+            lineRenderer.SetPosition(0, value);
+        }).setOnComplete( () =>
+        {
+            gameObject.layer = LayerMask.NameToLayer("Platform");
+            lineRenderer.startColor = lineRenderer.endColor = defaultColor;
+            base.Erase();
+        });
+    }
 }

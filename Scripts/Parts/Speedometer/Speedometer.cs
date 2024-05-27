@@ -11,16 +11,6 @@ public class Speedometer : Part
     private Marble marbleToTrack;
     private float timer;
 
-    private void OnEnable()
-    {
-        detectionArea.SetActive(true);
-    }
-
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
-    {
-        detectionArea.transform.localScale = Vector2.one * contextMenuData.GetParameter<int>("Range");
-    }
-
     public override void ReceiveTrigger(int? value)
     {
         if (value.HasValue)
@@ -30,9 +20,21 @@ public class Speedometer : Part
             contextMenu.UpdateContextMenu("Range", range);
 
             detectionArea.transform.localScale = Vector2.one * range;
-
-            Debug.Log(range);
         }
+        else
+        {
+            SetActive();
+        }
+    }
+    
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        detectionArea.transform.localScale = Vector2.one * (int)parameters["Range"];
+    }
+
+    private void OnEnable()
+    {
+        detectionArea.SetActive(true);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -75,6 +77,20 @@ public class Speedometer : Part
         {
             timer = 0;
         } 
+    }
+
+    public override void SetActive()
+    {
+        if (isActive)
+        {
+            detectionArea.SetActive(false);
+        }
+        else 
+        {
+            detectionArea.SetActive(true);
+        }
+
+        base.SetActive();
     }
 
     

@@ -6,42 +6,39 @@ using TMPro;
 
 public class ComparatorContextMenu : ContextMenu
 {
-    [SerializeField] private TMP_InputField storedValueInputField;
-    [SerializeField] private TMP_Dropdown operations;
+    [SerializeField] private TMP_InputField comparisonValueInputField;
+    [SerializeField] private TMP_Dropdown operationDropdown;
+    [SerializeField] private TMP_Dropdown modeDropdown;
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("StoredValue", 0);
-        currentContextMenuData.AddParameter("Operation", 0);
-        UpdateStoredValueInputField();
+        parameters["ComparisonValue"] = 0;
+        parameters["Operation"] = 0;
+        parameters["Mode"] = 0; 
 
-        this.associatedPart = associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        UpdateStoredValueInputField();
+        comparisonValueInputField.text = parameters["ComparisonValue"].ToString();
     }
 
-    public void SetStoredValue(string arg)
+    public void SetComparisonValue(string arg)
     {
-        int value = Int32.Parse(arg);
-        currentContextMenuData.AddParameter("StoredValue", value);
-
-        SendContextMenuDataToAssociatedPart();
-    }
-
-    private void UpdateStoredValueInputField()
-    {
-        storedValueInputField.text = currentContextMenuData.GetParameter<int>("StoredValue").ToString();
+        parameters["ComparisonValue"] = Int32.Parse(arg);
+        UpdateAssociatedPart();
     }
 
     public void SetOperation()
     {
-        currentContextMenuData.AddParameter("Operation", operations.value);
-        SendContextMenuDataToAssociatedPart();
+        parameters["Operation"] = operationDropdown.value;
+        UpdateAssociatedPart();
+    }
+
+    public void SetMode()
+    {
+        parameters["Mode"] = modeDropdown.value;
+        UpdateAssociatedPart();
     }
 }

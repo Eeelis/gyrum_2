@@ -6,13 +6,10 @@ public class TTVConverter : Part
 {
     private int storedValue;
 
-    public override void ReceiveContextMenuData(ContextMenuData contextMenuData)
-    {
-        this.storedValue = contextMenuData.GetParameter<int>("StoredValue");
-    }
-
     public override void ReceiveTrigger(int? value)
     {
+        if (!isActive) { return; }
+        
         if (value.HasValue)
         {
             this.storedValue = value.GetValueOrDefault();
@@ -22,5 +19,10 @@ public class TTVConverter : Part
         {
             SendTrigger(storedValue);
         }
+    }
+
+    public override void UpdateParameters(Dictionary<string, object> parameters)
+    {
+        storedValue = (int)parameters["StoredValue"];
     }
 }

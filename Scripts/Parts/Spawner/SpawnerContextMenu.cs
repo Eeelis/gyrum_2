@@ -20,75 +20,57 @@ public class SpawnerContextMenu : ContextMenu
 
     public override void Initialize(Part associatedPart)
     {
-        currentContextMenuData.AddParameter("InitialVelocity", 0);
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.down);
+        parameters["InitialVelocity"] = 0;
+        parameters["InitialDirection"] = Vector3.down;
 
-        initialVelocitySlider.value = currentContextMenuData.GetParameter<int>("InitialVelocity");
-        UpdateInitialVelocityText();
-        UpdateDirectionButtonSprites();
-
-        this.associatedPart =  associatedPart;
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+        base.Initialize(associatedPart);
     }
 
-    public override void UpdateContextMenu(string parameterName, object value)
+    public override void UpdateUI()
     {
-        currentContextMenuData.AddParameter(parameterName, value);
-
-        if (parameterName == "InitialVelocity")
-        {
-            initialVelocitySlider.value = currentContextMenuData.GetParameter<int>("InitialVelocity");
-            UpdateInitialVelocityText();
-        }   
-
-        UpdateDirectionButtonSprites();
-    }
-
-    public void UpdateInitialVelocityText()
-    {
+        initialVelocitySlider.value = (int)parameters["InitialVelocity"];
         initialVelocityText.text = initialVelocitySlider.value.ToString();
+        UpdateDirectionButtonSprites();
     }
 
     public void SetInitialVelocity()
     {
-        int initialVelocity = (int)initialVelocitySlider.value;
-        currentContextMenuData.AddParameter("InitialVelocity", initialVelocity);
-
-        UpdateInitialVelocityText();
-        SendContextMenuDataToAssociatedPart();
+        parameters["InitialVelocity"]  = (int)initialVelocitySlider.value;
+        UpdateUI();
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionUp()
     {
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.up);
+        parameters["InitialDirection"] = Vector3.up;
         UpdateDirectionButtonSprites();
-        SendContextMenuDataToAssociatedPart();
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionDown()
     {
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.down);
+        parameters["InitialDirection"] = Vector3.down;
         UpdateDirectionButtonSprites();
-        SendContextMenuDataToAssociatedPart();
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionLeft()
     {
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.left);
+        parameters["InitialDirection"] = Vector3.left;
         UpdateDirectionButtonSprites();
-        SendContextMenuDataToAssociatedPart();
+        UpdateAssociatedPart();
     }
 
     public void SetDirectionRight()
     {
-        currentContextMenuData.AddParameter("InitialDirection", Vector3.right);
+        parameters["InitialDirection"] = Vector3.right;
         UpdateDirectionButtonSprites();
-        SendContextMenuDataToAssociatedPart();
+        UpdateAssociatedPart();
     }
 
     public void UpdateDirectionButtonSprites()
     {
-        Vector3 direction =  currentContextMenuData.GetParameter<Vector3>("InitialDirection");
+        Vector3 direction = (Vector3)parameters["InitialDirection"];
 
         if (direction == Vector3.up)
         {

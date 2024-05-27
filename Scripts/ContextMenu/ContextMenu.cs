@@ -1,32 +1,61 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public abstract class ContextMenu : MonoBehaviour
 {
+    [HideInInspector] public int triggerMode;
+    [HideInInspector] public int valueMode;
+
     [SerializeField] private GameObject sendersContainer;
     [SerializeField] private GameObject receiversContainer;
     [SerializeField] private GameObject connectionMatrix;
     [SerializeField] private ConnectionMatrixElement connectionMatrixElementPrefab;
     [SerializeField] private GameObject hideConnectionMatrixButtonIcon;
+    [SerializeField] private TMP_Dropdown onTriggerReceivedDropdown;
+    [SerializeField] private TMP_Dropdown onValueReceivedDropdown;
+    [SerializeField] private Toggle activeToggle;
 
     protected Part associatedPart;
-    protected ContextMenuData currentContextMenuData = new ContextMenuData();
+    protected Dictionary<string, object> parameters = new Dictionary<string, object>();
 
     private Dictionary<Part, ConnectionMatrixElement> connectionMatrixElements = new Dictionary<Part, ConnectionMatrixElement>();
     private bool connectionMatrixOpen = true;
     private float connectionMatrixOpenPosition = 0;
     private float connectionMatrixClosedPosition = -245;
 
-    public abstract void UpdateContextMenu(string parameter, object value);
-
-    public abstract void Initialize(Part part);
-
-    public virtual void SendContextMenuDataToAssociatedPart()
+    public virtual void UpdateUI()
     {
-        if (!associatedPart) { return; }
         
-        associatedPart.ReceiveContextMenuData(currentContextMenuData);
+    }
+
+    public virtual void UpdateContextMenu(string parameter, object value)
+    {
+        parameters[parameter] = value;
+        UpdateUI();
+    }
+
+    public virtual void Initialize(Part part)
+    {
+        associatedPart = part;
+        
+        UpdateActiveToggle();
+        UpdateAssociatedPart();
+        UpdateUI();
+
+        if (onTriggerReceivedDropdown && onValueReceivedDropdown)
+        {
+            onTriggerReceivedDropdown.value = 0;
+            onValueReceivedDropdown.value = 0;
+            SetTriggerAndValueMode();
+        }
+    }
+
+    public virtual void UpdateAssociatedPart()
+    {
+        associatedPart?.UpdateParameters(parameters);
     }
 
     public virtual void AddReceiverToConnectionMatrix(Part receiver)
@@ -147,8 +176,21 @@ public abstract class ContextMenu : MonoBehaviour
         hideConnectionMatrixButtonIcon.transform.localRotation = new Quaternion(0f, 0f, 0f, 0f);
     }
 
-    public ContextMenuData GetContextMenuData()
+    public void SetTriggerAndValueMode()
     {
-        return currentContextMenuData;
+        triggerMode = onTriggerReceivedDropdown.value;
+        valueMode = onValueReceivedDropdown.value;
+    }
+
+    public void SetPartActive()
+    {
+        associatedPart.SetActive();
+    }
+
+    public void UpdateActiveToggle()
+    {
+        if (!activeToggle) { return; }
+
+        activeToggle.SetIsOnWithoutNotify(associatedPart.isActive);
     }
 }

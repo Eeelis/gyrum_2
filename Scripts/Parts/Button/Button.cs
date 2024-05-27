@@ -6,6 +6,8 @@ public class Button : Part
 {
     public void Clicked()
     {
+        if (!isActive) { return; }
+        
         LeanTween.cancel(gameObject);
         transform.localScale = Vector2.one;
         LeanTween.scale(gameObject, transform.localScale * 1.2f, 0.25f).setEasePunch();
