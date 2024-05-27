@@ -13,7 +13,7 @@ Check out [this video](https://youtu.be/v93mz2DMiWc) showcasing the program!
 
 <br>
 
-<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/ContextMenu.png" width="400">
+<img src="https://github.com/Eeelis/gyrum_2/blob/main/Images/UpdatedContextMenu.png" width="400">
 
 <br>
 
