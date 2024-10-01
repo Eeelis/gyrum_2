@@ -1,5 +1,5 @@
 # gyrum_2
-Gyrum is an experimental, gamified sequencer, inspired by Wintergatan's Marble Machine. In Gyrum, sequences of music can be created by manipulating the movement of simulated marbles, allowing for the creation of visually striking non-linear music.
+Gyrum is an experimental, gamified, non-linear sequencer, inspired by Wintergatan's Marble Machine. In Gyrum, sequences of music can be created by manipulating the movement of simulated marbles, allowing for the creation of visually striking non-linear music.
 
 Check out [this video](https://youtu.be/dUJVmCDEyIA) showcasing the program!
 
